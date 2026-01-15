@@ -2307,17 +2307,17 @@ ControlMode = FlagsEnum(Int8ul,
 ControlRequestOld = Struct(
     "control_mode" / ControlMode, # Common for all axes
     "target" / PerAxis(Struct(
-        "speed" / Int16sl,       # Units: 0.1220740379 deg/sec or 0.001 if HIGH_RES flag
-        "angle" / Int16sl,       # Units: 0.02197265625 deg
+        "speed" / Default(Int16sl, 0), # Units: 0.1220740379 deg/sec or 0.001 if HIGH_RES flag
+        "angle" / Default(Int16sl, 0), # Units: 0.02197265625 deg
     )),
 )
 
 # Frw. ver. 2.55b5+, mode per axis
 ControlRequest = Struct(
-    "control_mode" / PerAxis(ControlMode),
+    "control_mode" / PerAxis(Default(ControlMode, ControlMode.MODE_NO_CONTROL)),
     "target" / PerAxis(Struct(
-        "speed" / Int16sl,       # Units: 0.1220740379 deg/sec or 0.001 if HIGH_RES flag
-        "angle" / Int16sl,       # Units: 0.02197265625 deg
+        "speed" / Default(Int16sl, 0), # Units: 0.1220740379 deg/sec or 0.001 if HIGH_RES flag
+        "angle" / Default(Int16sl, 0), # Units: 0.02197265625 deg
     )),
 )
 
@@ -2348,7 +2348,8 @@ ControlExtRequest = Struct(
     "data_set" / ControlExtDataSet,
     # TODO: could use Computed(ctx._.data_set >> (ctx._index * 5)) (or Index) for the flag checks in parsing, but how will building work?
     # also check if we can use "this" instead of "ctx"
-    "target" / PerAxis(If(lambda ctx: ctx._.data_set & (3 << (ctx._index * 5)), Struct(
+    # TODO: need to create a replacement for FlagsEnum that can be ORed/ANDed with ints or maybe cast to ints and from ints
+    "target" / PerAxis(If(lambda ctx: ctx.data_set & (3 << (ctx._index * 5)), Struct(
         "control_mode" / ControlMode,
         "mode_flags" / ControlExtModeFlags,
         "speed" / If(lambda ctx: ctx._._.data_set & (1 << (ctx._._index * 5 + 0)),
