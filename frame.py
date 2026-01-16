@@ -1,6 +1,6 @@
 # vim: set ts=4 sw=4 sts=4 et :
 from construct import *
-from . import cmd
+from . import cmd, util
 import traceback
 
 def checksum8(data: bytes) -> int:
@@ -26,23 +26,6 @@ def checksum16(data: bytes) -> int:
 
     return crc
 
-class FlatRawCopy(RawCopy):
-    def _build(self, obj, stream, context, path):
-        # Accept inner value directly
-        return super()._build(Container(value=obj), stream, context, path)
-
-    def _parse(self, stream, context, path):
-        result = super()._parse(stream, context, path)
-        # Flatten: merge value fields into the container
-        if isinstance(result.value, bytes):
-            flat = Container()
-        else:
-            flat = Container(result.value)
-        flat.data = result.data
-        flat.offset1 = result.offset1
-        flat.offset2 = result.offset2
-        return flat
-
 Payload = GreedyBytes # Replace with cmd.RequestPayload or cmd.ResponsePayload
 
 FrameHeader = Struct(
@@ -58,14 +41,14 @@ FrameHeader = Struct(
 FrameV1 = Struct(
     "start"   / Const(b'>'),
     "hdr"     / FrameHeader,
-    "pld"     / FlatRawCopy(FixedSized(this.hdr.size, Payload)),
+    "pld"     / util.FlatRawCopy(FixedSized(this.hdr.size, Payload)),
     "pldcrc"  / Checksum(Int8ul, checksum8, this.pld.data),
 )
 
 FrameV2 = Struct(
     "start"   / Const(b'$'),
-    "hdr"     / FlatRawCopy(FrameHeader),
-    "pld"     / FlatRawCopy(FixedSized(this.hdr.size, Payload)),
+    "hdr"     / util.FlatRawCopy(FrameHeader),
+    "pld"     / util.FlatRawCopy(FixedSized(this.hdr.size, Payload)),
     "pldcrc"  / Checksum(Int16ul, checksum16, this.hdr.data + this.pld.data),
 )
 

@@ -54,3 +54,20 @@ class BitwiseInteger(construct.Container):
 
     def __repr__(self):
         return f"BitwiseInteger({self._raw_value}, {super().__repr__()})"
+
+class FlatRawCopy(construct.RawCopy):
+    def _build(self, obj, stream, context, path):
+        # Accept inner value directly
+        return super()._build(construct.Container(value=obj), stream, context, path)
+
+    def _parse(self, stream, context, path):
+        result = super()._parse(stream, context, path)
+        # Flatten: merge value fields into the container
+        if isinstance(result.value, bytes):
+            flat = construct.Container()
+        else:
+            flat = construct.Container(result.value)
+        flat.data = result.data
+        flat.offset1 = result.offset1
+        flat.offset2 = result.offset2
+        return flat
