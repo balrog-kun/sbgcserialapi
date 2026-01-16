@@ -30,7 +30,7 @@ Payload = GreedyBytes # Replace with cmd.RequestPayload or cmd.ResponsePayload
 
 FrameHeader = Struct(
     "cmd_id"  / cmd.CmdId,
-    "size"    / Int8ul,
+    "size"    / Default(Int8ul, lambda ctx: len(ctx._.pld)),
     "hdrcrc"  / Checksum(
         Int8ul,
         checksum8,
