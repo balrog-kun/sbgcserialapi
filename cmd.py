@@ -1,6 +1,8 @@
 # vim: set ts=4 sw=4 sts=4 et :
 from construct import *
 
+from .util import *
+
 #
 # Command request and response message payload type definitions following
 # SimpleBGC_2_6_Serial_Protocol_Specification.pdf 2025-10-28 version.  Command
@@ -8,7 +10,6 @@ from construct import *
 # grouped together.
 #
 
-PerAxis = lambda subcon: Array(3, subcon)
 # TODO: most uses of Default() in this file are probably wrong, we need to find a way
 # to add optional fields with a default value
 
@@ -2368,23 +2369,41 @@ ControlMode = FlagsEnum(Int8ul,
 # Legacy format (could use Switch() but meh)
 ControlRequestOld = Struct(
     "control_mode" / ControlMode, # Common for all axes
-    "target" / PerAxis(Struct(
-        "speed" / Default(Int16sl, 0), # Units: 0.1220740379 deg/sec or 0.001 if HIGH_RES flag
-        "angle" / Default(Int16sl, 0), # Units: 0.02197265625 deg
-    )),
+    "target" / PerAxis(Switch(lambda ctx: ctx.control_mode, {
+        # Speed units: 0.1220740379 deg/sec or 0.001 if HIGH_RES flag
+        # Angle units: 0.02197265625 deg
+        ControlMode.MODE_NO_CONTROL: Const(b'\x00\x00\x00\x00'),
+        ControlMode.MODE_SPEED: Struct("speed" / Int16sl, "angle" / Const(0, Int16sl)),
+        ControlMode.MODE_ANGLE: Struct("speed" / Const(0, Int16sl), "angle" / Int16sl),
+        ControlMode.MODE_SPEED_ANGLE: Struct("speed" / Int16sl, "angle" / Int16sl),
+        ControlMode.MODE_RC: Struct("speed" / Const(0, Int16sl), "angle" / Int16sl),
+        ControlMode.MODE_ANGLE_REL_FRAME: Struct("speed" / Const(0, Int16sl), "angle" / Int16sl),
+        ControlMode.MODE_RC_HIGH_RES: Struct("speed" / Const(0, Int16sl), "angle" / Int16sl),
+        ControlMode.MODE_IGNORE: Const(b'\x00\x00\x00\x00'),
+        ControlMode.MODE_ANGLE_SHORTEST: Struct("speed" / Const(0, Int16sl), "angle" / Int16sl),
+    })),
 )
 
 # Frw. ver. 2.55b5+, mode per axis
 ControlRequest = Struct(
-    "control_mode" / PerAxis(Default(ControlMode, ControlMode.MODE_NO_CONTROL)),
-    "target" / PerAxis(Struct(
-        "speed" / Default(Int16sl, 0), # Units: 0.1220740379 deg/sec or 0.001 if HIGH_RES flag
-        "angle" / Default(Int16sl, 0), # Units: 0.02197265625 deg
-    )),
+    "control_mode" / PerAxis(Default(ControlMode, ControlMode.MODE_IGNORE)),
+    "target" / PerAxis(Switch(lambda ctx: ctx.control_mode[ctx._index], {
+        # Speed units: 0.1220740379 deg/sec or 0.001 if HIGH_RES flag
+        # Angle units: 0.02197265625 deg
+        ControlMode.MODE_NO_CONTROL: Const(b'\x00\x00\x00\x00'),
+        ControlMode.MODE_SPEED: Struct("speed" / Int16sl, "angle" / Const(0, Int16sl)),
+        ControlMode.MODE_ANGLE: Struct("speed" / Const(0, Int16sl), "angle" / Int16sl),
+        ControlMode.MODE_SPEED_ANGLE: Struct("speed" / Int16sl, "angle" / Int16sl),
+        ControlMode.MODE_RC: Struct("speed" / Const(0, Int16sl), "angle" / Int16sl),
+        ControlMode.MODE_ANGLE_REL_FRAME: Struct("speed" / Const(0, Int16sl), "angle" / Int16sl),
+        ControlMode.MODE_RC_HIGH_RES: Struct("speed" / Const(0, Int16sl), "angle" / Int16sl),
+        ControlMode.MODE_IGNORE: Const(b'\x00\x00\x00\x00'),
+        ControlMode.MODE_ANGLE_SHORTEST: Struct("speed" / Const(0, Int16sl), "angle" / Int16sl),
+    })),
 )
 
 # CMD_CONTROL_EXT (#121) (frw. ver. 2.68+)
-ControlExtDataSet = FlagsEnum(Int16ul,
+ControlExtDataSet = IntFlagsEnum(Int16ul,
     # Per-axis flags (bits 0-4 for axis 1, 5-9 for axis 2, 10-14 for axis 3)
     AXIS1_SPEED = 1 << 0,
     AXIS1_ANGLE = 1 << 1,
@@ -2400,6 +2419,13 @@ ControlExtDataSet = FlagsEnum(Int16ul,
     AXIS3_ANGLE = 1 << 11,
     AXIS3_ANGLE_32BIT = 1 << 12,
     AXIS3_SPEED_32BIT = 1 << 13,
+
+    # For values shifted right by axis_num * 5
+    EITHER_VAL = 3,
+    SPEED = 1 << 0,
+    ANGLE = 1 << 1,
+    ANGLE_32BIT = 1 << 2,
+    SPEED_32BIT = 1 << 3,
 )
 
 ControlExtModeFlags = FlagsEnum(Int8ul,
@@ -2408,16 +2434,14 @@ ControlExtModeFlags = FlagsEnum(Int8ul,
 
 ControlExtRequest = Struct(
     "data_set" / ControlExtDataSet,
-    # TODO: could use Computed(ctx._.data_set >> (ctx._index * 5)) (or Index) for the flag checks in parsing, but how will building work?
-    # also check if we can use "this" instead of "ctx"
-    # TODO: need to create a replacement for FlagsEnum that can be ORed/ANDed with ints or maybe cast to ints and from ints
-    "target" / PerAxis(If(lambda ctx: ctx.data_set & (3 << (ctx._index * 5)), Struct(
+    "target" / PerAxis(If(lambda ctx: (ctx.data_set >> (ctx._index * 5)) & ControlExtDataSet.EITHER_VAL, Struct(
+        "axis_data_set" / Computed(lambda ctx: ctx._.data_set >> (ctx._._index * 5)),
         "control_mode" / ControlMode,
         "mode_flags" / ControlExtModeFlags,
-        "speed" / If(lambda ctx: ctx._._.data_set & (1 << (ctx._._index * 5 + 0)),
-            IfThenElse(lambda ctx: ctx._._.data_set & (1 << (ctx._._index * 5 + 3)), Int32sl, Int16sl)),
-        "angle" / If(lambda ctx: ctx._._.data_set & (1 << (ctx._._index * 5 + 1)),
-            IfThenElse(lambda ctx: ctx._._.data_set & (1 << (ctx._._index * 5 + 2)), Int32sl, Int16sl)),
+        "speed" / LazyIf(lambda ctx: ctx.axis_data_set & ControlExtDataSet.SPEED,
+            IfThenElse(lambda ctx: ctx.axis_data_set & ControlExtDataSet.SPEED_32BIT, Int32sl, Int16sl)),
+        "angle" / LazyIf(lambda ctx: ctx.axis_data_set & ControlExtDataSet.ANGLE,
+            IfThenElse(lambda ctx: ctx.axis_data_set & ControlExtDataSet.ANGLE_32BIT, Int32sl, Int16sl)),
     ))),
 )
 
