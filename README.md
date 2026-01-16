@@ -6,8 +6,9 @@ The definitions here aim to follow the official doc at https://www.basecamelectr
 
 The boring work here was done by Claude Sonnet 4.5 with manual checking, refactoring, merging of the pieces and fixing up after light testing.
 
-=== Example ===
+# Example
 
+```python
 from sbgcserialapi import cmd, frame, unit
 import serial
 
@@ -16,5 +17,6 @@ import serial
 out_payload = cmd.ControlRequest.build(dict(control_mode=(cmd.ControlMode.MODE_ANGLE, None, None), target=(dict(angle=int(10 / unit.degree_factor)), None, None)))
 out_frame = frame.FrameV1.build(dict(hdr=dict(cmd_id=cmd.CmdId.CMD_CONTROL, size=len(out_payload)), pld=out_payload))
 
-sbgc_port = serial.Serial(sbgc_port_path, baudrate=115200, timeout=0, write_timeout=1)
+sbgc_port = serial.Serial('/dev/ttyUSB0', baudrate=115200, timeout=0, write_timeout=1)
 sbgc_port.write(out_frame)
+```
