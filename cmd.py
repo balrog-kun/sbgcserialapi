@@ -1411,66 +1411,66 @@ Motor4Control = Struct(
 RealtimeDataCustomResponse = Struct(
     "timestamp_ms" / Int16ul,
 
-    # Conditional fields based on request flags
-    "imu_angles" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.IMU_ANGLES,
+    # Conditional fields based on request flags TODO: at least fall back to GreedyBytes if not provided
+    "imu_angles" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.IMU_ANGLES,
         PerAxis(Int16sl)),
-    "target_angles" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.TARGET_ANGLES,
+    "target_angles" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.TARGET_ANGLES,
         PerAxis(Int16sl)),
-    "target_speed" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.TARGET_SPEED,
+    "target_speed" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.TARGET_SPEED,
         PerAxis(Int16sl)),
-    "frame_cam_angle" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.FRAME_CAM_ANGLE,
+    "frame_cam_angle" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.FRAME_CAM_ANGLE,
         PerAxis(Int16sl)),
-    "gyro_data" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.GYRO_DATA,
+    "gyro_data" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.GYRO_DATA,
         PerAxis(Int16sl)),
-    "rc_data" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.RC_DATA,
+    "rc_data" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.RC_DATA,
         Array(6, Int16sl)),
-    "z_vector" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.Z_VECTOR_H_VECTOR,
+    "z_vector" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.Z_VECTOR_H_VECTOR,
         PerAxis(Float32l)),
-    "h_vector" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.Z_VECTOR_H_VECTOR,
+    "h_vector" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.Z_VECTOR_H_VECTOR,
         PerAxis(Float32l)),
-    "rc_channels" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.RC_CHANNELS,
+    "rc_channels" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.RC_CHANNELS,
         Array(18, Int16sl)),
-    "acc_data" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.ACC_DATA,
+    "acc_data" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.ACC_DATA,
         PerAxis(Int16sl)),
-    "motor4_control" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.MOTOR4_CONTROL,
+    "motor4_control" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.MOTOR4_CONTROL,
         Motor4Control),
-    "ahrs_debug_info" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.AHRS_DEBUG_INFO,
+    "ahrs_debug_info" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.AHRS_DEBUG_INFO,
         AhrsDebugInfo),
-    "encoder_raw24" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.ENCODER_RAW24,
+    "encoder_raw24" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.ENCODER_RAW24,
         Bytes(9)),  # 3x3 bytes
-    "imu_angles_rad" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.IMU_ANGLES_RAD,
+    "imu_angles_rad" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.IMU_ANGLES_RAD,
         PerAxis(Float32l)),
-    "script_vars_float" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.SCRIPT_VARS_FLOAT,
+    "script_vars_float" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.SCRIPT_VARS_FLOAT,
         Array(10, Float32l)),
-    "script_vars_int16" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.SCRIPT_VARS_INT16,
+    "script_vars_int16" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.SCRIPT_VARS_INT16,
         Array(10, Int16sl)),
-    "system_power_state" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.SYSTEM_POWER_STATE,
+    "system_power_state" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.SYSTEM_POWER_STATE,
         SystemPowerState),
-    "frame_cam_rate" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.FRAME_CAM_RATE,
+    "frame_cam_rate" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.FRAME_CAM_RATE,
         PerAxis(Int16sl)),
-    "imu_angles_20" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.IMU_ANGLES_20,
+    "imu_angles_20" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.IMU_ANGLES_20,
         PerAxis(Int32sl)),
-    "target_angles_20" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.TARGET_ANGLES_20,
+    "target_angles_20" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.TARGET_ANGLES_20,
         PerAxis(Int32sl)),
-    "comm_errors" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.COMM_ERRORS,
+    "comm_errors" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.COMM_ERRORS,
         CommErrors),
-    "system_state" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.SYSTEM_STATE,
+    "system_state" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.SYSTEM_STATE,
         SystemState),
-    "imu_quat" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.IMU_QUAT,
+    "imu_quat" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.IMU_QUAT,
         Bytes(8)),  # Compressed quat
-    "target_quat" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.TARGET_QUAT,
+    "target_quat" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.TARGET_QUAT,
         Bytes(8)),
-    "imu_to_frame_quat" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.IMU_TO_FRAME_QUAT,
+    "imu_to_frame_quat" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.IMU_TO_FRAME_QUAT,
         Bytes(8)),
-    "adc_ch_raw" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.ADC_CH_RAW,
+    "adc_ch_raw" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.ADC_CH_RAW,
         Array(4, Int16ul)),
-    "sw_limits_dist" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.SW_LIMITS_DIST,
+    "sw_limits_dist" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.SW_LIMITS_DIST,
         PerAxis(Array(2, Int16sl))),
-    "follow_dist" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.FOLLOW_DIST,
+    "follow_dist" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.FOLLOW_DIST,
         PerAxis(Int16sl)),
-    "ext_target_limit_min" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.EXT_TARGET_LIMIT,
+    "ext_target_limit_min" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.EXT_TARGET_LIMIT,
         PerAxis(Int32sl)),
-    "ext_target_limit_max" / If(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.EXT_TARGET_LIMIT,
+    "ext_target_limit_max" / LazyIf(lambda ctx: ctx._.request.flags & RealtimeDataCustomFlags.EXT_TARGET_LIMIT,
         PerAxis(Int32sl)),
 )
 
@@ -1776,55 +1776,24 @@ CanDrvTelemetryFlags = FlagsEnum(Int32ul,
 CanDrvTelemetryNotification = Struct(
     "drv_id" / Int8ul,  # 0-6
     "timestamp_ms" / Int16ul,
-    # DATA field depends on flags in request
-    "can_bus_flags" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.CAN_BUS_FLAGS,
-        Int8ul),
-    "can_bus_err_cnt" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.CAN_BUS_ERR_CNT,
-        Int16ul),
-    "temp_board" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.TEMP_BOARD,
-        Int8sl),  # °C
-    "temp_motor" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.TEMP_MOTOR,
-        Int8sl),  # °C
-    "avg_current" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.AVG_CURRENT,
-        Int16ul),  # mA
-    "bus_voltage" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.BUS_VOLTAGE,
-        Int16ul),  # mV
-    "pin_state" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.PIN_STATE,
-        CanDrvPinState),
-    "phase_current" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.PHASE_CURRENT,
-        PerAxis(Int16sl)),  # mA
-    "encoder_error_cnt" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.ENCODER_ERROR_CNT,
-        Int16ul),
-    "iq_current" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.IQ_ID_CURRENT,
-        Int16sl),  # mA
-    "id_current" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.IQ_ID_CURRENT,
-        Int16sl),  # mA
-    "motor_speed" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.MOTOR_SPEED,
-        Int16sl),  # RPM
-    "pid_pos_err" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.PID_POS_ERR,
-        Int16sl),
-    "pid_speed_err" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.PID_SPEED_ERR,
-        Int16sl),
-    "iq_ref" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.IQ_REF,
-        Int16sl),  # ±32768 = ±100%
-    "pid_current_err" / If(lambda ctx: ctx._.request.config[:4] and
-        Int32ul.parse(ctx._.request.config[:4]) & CanDrvTelemetryFlags.PID_CURRENT_ERR,
-        Int16sl),
+    # DATA field depends on flags in request TODO: at least fall back to GreedyBytes
+    "req_flags" / Computed(lambda ctx: CanDrvTelemetryFlags.parse(ctx._.request.config[:4])),
+    "can_bus_flags" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.CAN_BUS_FLAGS, Int8ul),
+    "can_bus_err_cnt" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.CAN_BUS_ERR_CNT, Int16ul),
+    "temp_board" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.TEMP_BOARD, Int8sl),  # °C
+    "temp_motor" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.TEMP_MOTOR, Int8sl),  # °C
+    "avg_current" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.AVG_CURRENT, Int16ul),  # mA
+    "bus_voltage" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.BUS_VOLTAGE, Int16ul),  # mV
+    "pin_state" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.PIN_STATE, CanDrvPinState),
+    "phase_current" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.PHASE_CURRENT, PerAxis(Int16sl)),  # mA
+    "encoder_error_cnt" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.ENCODER_ERROR_CNT, Int16ul),
+    "iq_current" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.IQ_ID_CURRENT, Int16sl),  # mA
+    "id_current" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.IQ_ID_CURRENT, Int16sl),  # mA
+    "motor_speed" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.MOTOR_SPEED, Int16sl),  # RPM
+    "pid_pos_err" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.PID_POS_ERR, Int16sl),
+    "pid_speed_err" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.PID_SPEED_ERR, Int16sl),
+    "iq_ref" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.IQ_REF, Int16sl),  # ±32768 = ±100%
+    "pid_current_err" / LazyIf(lambda ctx: ctx.req_flags & CanDrvTelemetryFlags.PID_CURRENT_ERR, Int16sl),
 )
 
 # CMD_EXT_MOTORS_STATE (#131)
@@ -1884,45 +1853,45 @@ ExtMotorsStateResponse = Struct(
     "motor_id" / Int8ul,  # 0-6
     "data_set" / ExtMotorStateDataSet,
     # DATA field depends on data_set flags in this response
-    "control_mode" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.CONTROL_MODE,
+    "control_mode" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.CONTROL_MODE,
         ExtMotorControlMode),
-    "torque" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.TORQUE,
+    "torque" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.TORQUE,
         Int16sl),
-    "torque_setpoint" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.TORQUE_SETPOINT,
+    "torque_setpoint" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.TORQUE_SETPOINT,
         Int16sl),
-    "speed16" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.SPEED16,
+    "speed16" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.SPEED16,
         Int16sl),  # Units: 0.1220740379 deg/sec
-    "speed16_setpoint" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.SPEED16_SETPOINT,
+    "speed16_setpoint" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.SPEED16_SETPOINT,
         Int16sl),
-    "speed32" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.SPEED32,
+    "speed32" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.SPEED32,
         Int32sl),  # Units: micro-radians/sec
-    "speed32_setpoint" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.SPEED32_SETPOINT,
+    "speed32_setpoint" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.SPEED32_SETPOINT,
         Int32sl),
-    "angle16" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.ANGLE16,
+    "angle16" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.ANGLE16,
         Int16sl),  # Units: 0.02197265625 deg
-    "angle16_setpoint" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.ANGLE16_SETPOINT,
+    "angle16_setpoint" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.ANGLE16_SETPOINT,
         Int16sl),
-    "angle32" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.ANGLE32,
+    "angle32" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.ANGLE32,
         Int32sl),  # Units: 0.00034332275390625 deg
-    "angle32_setpoint" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.ANGLE32_SETPOINT,
+    "angle32_setpoint" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.ANGLE32_SETPOINT,
         Int32sl),
-    "state_flags" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.STATE_FLAGS,
+    "state_flags" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.STATE_FLAGS,
         ExtMotorStateFlags),
-    "max_speed" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.MAX_SPEED,
+    "max_speed" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.MAX_SPEED,
         Int16ul),
-    "max_acceleration" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.MAX_ACCELERATION,
+    "max_acceleration" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.MAX_ACCELERATION,
         Int16ul),
-    "jerk_slope" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.JERK_SLOPE,
+    "jerk_slope" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.JERK_SLOPE,
         Int16ul),
-    "max_torque" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.MAX_TORQUE,
+    "max_torque" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.MAX_TORQUE,
         Int16ul),
-    "current" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.CURRENT,
+    "current" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.CURRENT,
         Int16ul),  # mA
-    "battery_voltage" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.BATTERY_VOLTAGE,
+    "battery_voltage" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.BATTERY_VOLTAGE,
         Int16ul),  # mV
-    "motor_temperature" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.MOTOR_TEMPERATURE,
+    "motor_temperature" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.MOTOR_TEMPERATURE,
         Int8sl),  # °C
-    "driver_temperature" / If(lambda ctx: ctx.data_set & ExtMotorStateDataSet.DRIVER_TEMPERATURE,
+    "driver_temperature" / LazyIf(lambda ctx: ctx.data_set & ExtMotorStateDataSet.DRIVER_TEMPERATURE,
         Int8sl),  # °C
 )
 
@@ -1948,27 +1917,27 @@ ControlQuatStatusRequest = Struct(
 ControlQuatStatusResponse = Struct(
     "data_set" / ControlQuatStatusDataSet,
     # DATA field depends on data_set flags in this response
-    "mode" / If(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.MODE,
+    "mode" / LazyIf(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.MODE,
         Int8ul),
-    "flags" / If(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.MODE,
+    "flags" / LazyIf(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.MODE,
         Int16ul),
-    "target_attitude" / If(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.TARGET_ATTITUDE,
+    "target_attitude" / LazyIf(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.TARGET_ATTITUDE,
         Array(4, Float32l)),  # [w,x,y,z]
-    "setpoint_attitude" / If(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.SETPOINT_ATTITUDE,
+    "setpoint_attitude" / LazyIf(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.SETPOINT_ATTITUDE,
         Array(4, Float32l)),
-    "actual_attitude" / If(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.ACTUAL_ATTITUDE,
+    "actual_attitude" / LazyIf(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.ACTUAL_ATTITUDE,
         Array(4, Float32l)),
-    "target_speed" / If(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.TARGET_SPEED,
+    "target_speed" / LazyIf(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.TARGET_SPEED,
         PerAxis(Int16sl)),  # Units: 0.06103701895 deg/sec
-    "setpoint_speed" / If(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.SETPOINT_SPEED,
+    "setpoint_speed" / LazyIf(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.SETPOINT_SPEED,
         PerAxis(Int16sl)),
-    "actual_speed" / If(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.ACTUAL_SPEED,
+    "actual_speed" / LazyIf(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.ACTUAL_SPEED,
         PerAxis(Int16sl)),
-    "target_attitude_packed" / If(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.TARGET_ATTITUDE_PACKED,
-        Bytes(8)),  # Compressed quaternion
-    "setpoint_attitude_packed" / If(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.SETPOINT_ATTITUDE_PACKED,
+    "target_attitude_packed" / LazyIf(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.TARGET_ATTITUDE_PACKED,
+        Bytes(8)),  # Compressed quaternion TODO: packing/unpacking
+    "setpoint_attitude_packed" / LazyIf(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.SETPOINT_ATTITUDE_PACKED,
         Bytes(8)),
-    "actual_attitude_packed" / If(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.ACTUAL_ATTITUDE_PACKED,
+    "actual_attitude_packed" / LazyIf(lambda ctx: ctx.data_set & ControlQuatStatusDataSet.ACTUAL_ATTITUDE_PACKED,
         Bytes(8)),
 )
 
@@ -2511,20 +2480,20 @@ ControlQuatRequest = Struct(
     # TODO: not clear if "omitted" in the spec means actually omitting the bytes that would be
     # otherwise used by that field, must test.
 
-    # Target attitude - conditional on mode.  TODO: implement the packing/unpacking here
-    "target_attitude_full" / If(
+    # Target attitude - conditional on mode
+    "target_attitude_full" / LazyIf(
         lambda ctx: ctx.mode in [ControlQuatMode.ATTITUDE, ControlQuatMode.SPEED_ATTITUDE] and
                     not (ctx.flags & ControlQuatFlags.ATTITUDE_PACKED),
         Array(4, Float32l)  # [w, x, y, z] quaternion
     ),
-    "target_attitude_packed" / If(
+    "target_attitude_packed" / LazyIf(
         lambda ctx: ctx.mode in [ControlQuatMode.ATTITUDE, ControlQuatMode.SPEED_ATTITUDE] and
                     (ctx.flags & ControlQuatFlags.ATTITUDE_PACKED),
-        Bytes(8)  # Compressed quaternion
+        Bytes(8)  # Compressed quaternion.  TODO: implement the packing/unpacking here
     ),
 
     # Target speed - conditional on mode
-    "target_speed" / If(
+    "target_speed" / LazyIf(
         lambda ctx: ctx.mode in [ControlQuatMode.SPEED, ControlQuatMode.SPEED_ATTITUDE,
                                   ControlQuatMode.SPEED_LIMITED],
         PerAxis(Float32l)  # [x, y, z] rotation vector, Units: rad/sec
@@ -2549,17 +2518,17 @@ ControlQuatConfigRequest = Struct(
     "data_set" / ControlQuatConfigDataSet,
 
     # Conditional fields based on data_set
-    "max_speed" / If(lambda ctx: ctx.data_set & ControlQuatConfigDataSet.MAX_SPEED,
+    "max_speed" / LazyIf(lambda ctx: ctx.data_set & ControlQuatConfigDataSet.MAX_SPEED,
         PerAxis(Int16ul)),  # Units: 0.1220740379 deg/sec
-    "acc_limit" / If(lambda ctx: ctx.data_set & ControlQuatConfigDataSet.ACC_LIMIT,
+    "acc_limit" / LazyIf(lambda ctx: ctx.data_set & ControlQuatConfigDataSet.ACC_LIMIT,
         PerAxis(Int16ul)),  # Units: deg/sec^2, 0=disable
-    "jerk_slope" / If(lambda ctx: ctx.data_set & ControlQuatConfigDataSet.JERK_SLOPE,
+    "jerk_slope" / LazyIf(lambda ctx: ctx.data_set & ControlQuatConfigDataSet.JERK_SLOPE,
         PerAxis(Int16ul)),  # Units: ms, 0=disable
-    "flags" / If(lambda ctx: ctx.data_set & ControlQuatConfigDataSet.FLAGS,
+    "flags" / LazyIf(lambda ctx: ctx.data_set & ControlQuatConfigDataSet.FLAGS,
         ControlQuatConfigFlags),
-    "attitude_lpf_freq" / If(lambda ctx: ctx.data_set & ControlQuatConfigDataSet.ATTITUDE_LPF_FREQ,
+    "attitude_lpf_freq" / LazyIf(lambda ctx: ctx.data_set & ControlQuatConfigDataSet.ATTITUDE_LPF_FREQ,
         Int8ul),  # Units: Hz, 0=disable
-    "speed_lpf_freq" / If(lambda ctx: ctx.data_set & ControlQuatConfigDataSet.SPEED_LPF_FREQ,
+    "speed_lpf_freq" / LazyIf(lambda ctx: ctx.data_set & ControlQuatConfigDataSet.SPEED_LPF_FREQ,
         Int8ul),  # Units: Hz, 0=disable
 )
 
@@ -2613,16 +2582,11 @@ ExtMotorsControlRequest = Struct(
     "data_set" / ExtMotorControlDataSet,
     # Per-motor setpoints (number depends on bits set in for_motors) TODO: count bits
     "motor_data" / GreedyRange(Struct(
-        # Setpoint - 16bit or 32bit based on data_set bit 0 # TODO: use Switch() for setpoint and param?
-        "setpoint16" / If(lambda ctx: not (ctx._.data_set & ExtMotorControlDataSet.SETPOINT_32BIT),
-        Int16sl),
-        "setpoint32" / If(lambda ctx: ctx._.data_set & ExtMotorControlDataSet.SETPOINT_32BIT,
-        Int32sl),
-        # Optional PARAM1 - 16bit or 32bit based on data_set bits 1-2
-        "param1_16" / If(lambda ctx: ctx._.data_set & ExtMotorControlDataSet.PARAM1_16BIT,
-        Int16sl),
-        "param1_32" / If(lambda ctx: ctx._.data_set & ExtMotorControlDataSet.PARAM1_32BIT,
-        Int32sl),
+        # Setpoint - 16bit or 32bit based on data_set bit 0
+        "setpoint" / IfThenElse(lambda ctx: ctx._.data_set & ExtMotorControlDataSet.SETPOINT_32BIT, Int32sl, Int16sl),
+        # Optional PARAM1 - 16bit or 32bit based on data_set bits 1-2 # TODO: unify
+        "param1_16" / LazyIf(lambda ctx: ctx._.data_set & ExtMotorControlDataSet.PARAM1_16BIT, Int16sl),
+        "param1_32" / LazyIf(lambda ctx: ctx._.data_set & ExtMotorControlDataSet.PARAM1_32BIT, Int32sl),
     )),
 )
 
@@ -2655,15 +2619,15 @@ ExtMotorsControlConfigRequest = Struct(
     "data_set" / ExtMotorControlConfigDataSet,
 
     # Conditional fields based on data_set
-    "mode" / If(lambda ctx: ctx.data_set & ExtMotorControlConfigDataSet.MODE,
+    "mode" / LazyIf(lambda ctx: ctx.data_set & ExtMotorControlConfigDataSet.MODE,
         ExtMotorControlMode),
-    "max_speed" / If(lambda ctx: ctx.data_set & ExtMotorControlConfigDataSet.MAX_SPEED,
+    "max_speed" / LazyIf(lambda ctx: ctx.data_set & ExtMotorControlConfigDataSet.MAX_SPEED,
         Int16ul),  # Units: 2 deg/sec
-    "max_acceleration" / If(lambda ctx: ctx.data_set & ExtMotorControlConfigDataSet.MAX_ACCELERATION,
+    "max_acceleration" / LazyIf(lambda ctx: ctx.data_set & ExtMotorControlConfigDataSet.MAX_ACCELERATION,
         Int16ul),  # Units: 2 deg/sec^2
-    "jerk_slope" / If(lambda ctx: ctx.data_set & ExtMotorControlConfigDataSet.JERK_SLOPE,
+    "jerk_slope" / LazyIf(lambda ctx: ctx.data_set & ExtMotorControlConfigDataSet.JERK_SLOPE,
         Int16ul),  # Units: ms
-    "max_torque" / If(lambda ctx: ctx.data_set & ExtMotorControlConfigDataSet.MAX_TORQUE,
+    "max_torque" / LazyIf(lambda ctx: ctx.data_set & ExtMotorControlConfigDataSet.MAX_TORQUE,
         Int16ul),  # Relative to max available torque
 )
 
