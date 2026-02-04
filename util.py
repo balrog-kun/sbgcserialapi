@@ -51,6 +51,8 @@ class BitwiseInteger(construct.Container):
     def __xor__(self, other):    return self._raw_value ^ int(other)
     def __lshift__(self, other): return self._wrap_int(self._raw_value << int(other))
     def __rshift__(self, other): return self._wrap_int(self._raw_value >> int(other))
+    def __hash__(self):          return hash(self._raw_value)
+    def __eq__(self, other):     return self._raw_value == other
 
     def __repr__(self):
         return f"BitwiseInteger({self._raw_value}, {super().__repr__()})"

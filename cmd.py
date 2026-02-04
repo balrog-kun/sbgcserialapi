@@ -2315,7 +2315,7 @@ def parse_ref_src_processing_enabled(byte_val):
 #
 
 # CMD_CONTROL (#67)
-ControlMode = FlagsEnum(Int8ul,
+ControlMode = IntFlagsEnum(Int8ul,
     # Mode (bits 0-3)
     MODE_NO_CONTROL = 0,
     MODE_SPEED = 1,
@@ -2326,6 +2326,8 @@ ControlMode = FlagsEnum(Int8ul,
     MODE_RC_HIGH_RES = 6,
     MODE_IGNORE = 7,
     MODE_ANGLE_SHORTEST = 8,
+
+    MODE_MASK = (1 << 4) - 1,
 
     # Flags (bits 4-7)
     CONTROL_FLAG_MIX_FOLLOW = 1 << 4,
@@ -2338,7 +2340,7 @@ ControlMode = FlagsEnum(Int8ul,
 # Legacy format (could use Switch() but meh)
 ControlRequestOld = Struct(
     "control_mode" / ControlMode, # Common for all axes
-    "target" / PerAxis(Switch(lambda ctx: ctx.control_mode, {
+    "target" / PerAxis(Switch(lambda ctx: ctx.control_mode & ControlMode.MODE_MASK, {
         # Speed units: 0.1220740379 deg/sec or 0.001 if HIGH_RES flag
         # Angle units: 0.02197265625 deg
         ControlMode.MODE_NO_CONTROL: Const(b'\x00\x00\x00\x00'),
@@ -2356,7 +2358,7 @@ ControlRequestOld = Struct(
 # Frw. ver. 2.55b5+, mode per axis
 ControlRequest = Struct(
     "control_mode" / PerAxis(Default(ControlMode, ControlMode.MODE_IGNORE)),
-    "target" / PerAxis(Switch(lambda ctx: ctx.control_mode[ctx._index], {
+    "target" / PerAxis(Switch(lambda ctx: ctx.control_mode[ctx._index] & ControlMode.MODE_MASK, {
         # Speed units: 0.1220740379 deg/sec or 0.001 if HIGH_RES flag
         # Angle units: 0.02197265625 deg
         ControlMode.MODE_NO_CONTROL: Const(b'\x00\x00\x00\x00'),
