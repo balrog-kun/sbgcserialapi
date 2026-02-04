@@ -84,7 +84,7 @@ class InStream:
                 if text:
                     if self.text_cb is not None:
                         self.text_cb(text.decode('utf-8'))
-                    text = ''
+                    text = b''
 
                 cmdstr = str(cmd.CmdId.parse(self.buf[1:2]))
                 frame = None
