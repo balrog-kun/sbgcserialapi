@@ -20,7 +20,7 @@ SubcmdId = Enum(Int8ul,
 
 GetParamRequest = Struct(
     "subcmd_id" / Const(int(SubcmdId.GET_PARAM), Int8ul),
-    "param_id"  / Int16ul,
+    "param_ids" / GreedyRange(Int16ul),
 )
 
 GetParamResponse = GreedyBytes
