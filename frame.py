@@ -1,6 +1,6 @@
 # vim: set ts=4 sw=4 sts=4 et :
 from construct import *
-from . import cmd, util
+from . import cmd, cmd_obgc, util
 import traceback
 
 def checksum8(data: bytes) -> int:
@@ -28,8 +28,10 @@ def checksum16(data: bytes) -> int:
 
 Payload = GreedyBytes # Replace with cmd.RequestPayload or cmd.ResponsePayload
 
+CmdId = Select(cmd.CmdId, cmd_obgc.CmdId)
+
 FrameHeader = Struct(
-    "cmd_id"  / cmd.CmdId,
+    "cmd_id"  / CmdId,
     "size"    / Default(Int8ul, lambda ctx: len(ctx._.pld)),
     "hdrcrc"  / Checksum(
         Int8ul,
@@ -86,7 +88,7 @@ class InStream:
                         self.text_cb(text.decode('utf-8'))
                     text = b''
 
-                cmdstr = str(cmd.CmdId.parse(self.buf[1:2]))
+                cmdstr = str(CmdId.parse(self.buf[1:2]))
                 frame = None
                 if self.debug_cb is not None:
                     self.debug_cb(f'Trying parse {str(self.buf[:framelen])} as cmd {cmdstr}')
